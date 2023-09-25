@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+import left_side
 
 width = 800
 height = 480
@@ -38,7 +38,7 @@ ___debugger___ = False
 
 image = np.zeros((height, width, 3), dtype=np.uint8)
 
-image[:] = (255, 255, 255)
+image[:] = (222, 222, 222)
 
 
 def split_content():
@@ -96,12 +96,20 @@ y = round(text_height / 2 - total_height / 2)
 
 # y += single_height
 
+left_side.draw(cv2, image)
+
+
 (new_x, new_y) = draw_title(title=title, x=x, y=y)
 (new_x1, new_y1) = draw_content(content, x = x, y = new_y)
 if ___debugger___:
     cv2.rectangle(image, (x,y), (x + text_width, new_y1), (0,0, 255), 1)    
 
+
+
+
+
 # 显示图像
-cv2.imshow("Image", image)
+cv2.imwrite("Image.jpg", image)
+# cv2.imshow("Image", image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
