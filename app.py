@@ -109,7 +109,7 @@ if ___debugger___:
 
 
 # 显示图像
-cv2.imwrite("Image.jpg", image)
-# cv2.imshow("Image", image)
+# cv2.imwrite("Image.jpg", image)
+cv2.imshow("Image", image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
