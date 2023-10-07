@@ -16,6 +16,8 @@ from PIL import Image,ImageDraw,ImageFont
 import traceback
 import re
 from shapely.geometry import LineString
+
+from request import request_time, request_calender, request_weather
 width = 800
 height = 480
 
@@ -193,178 +195,203 @@ def draw_text_multi(draw: ImageDraw.ImageDraw, text: str, x, y, width: int, max_
         current_height = (index + 1) * 30;
     
 
+init = False
+
+prev_day = None
+
+today_progress = 0
+
+while True:
+    try:
 
 
-try:
-    logging.info("epd7in5_V2 Demo")
-    # epd = epd7in5_V2.EPD()
-    
-    logging.info("init and Clear")
-    # epd.init()
-    # epd.Clear()
+        print('frame')
+        logging.info("epd7in5_V2 Demo")
+        # epd = epd7in5_V2.EPD()
+        
+        logging.info("init and Clear")
+        # epd.init()
+        # epd.Clear()
 
-    font_c_14 = ImageFont.truetype(os.path.join('./AaGuDianKeBenSong-2.ttf'), 14)
-    font_c_16 = ImageFont.truetype(os.path.join('./AaGuDianKeBenSong-2.ttf'), 14)
+        font_c_14 = ImageFont.truetype(os.path.join('./AaGuDianKeBenSong-2.ttf'), 14)
+        font_c_16 = ImageFont.truetype(os.path.join('./AaGuDianKeBenSong-2.ttf'), 14)
 
-    font96 = ImageFont.truetype(os.path.join('UNSII-2.ttf'), 96)
-    font18 = ImageFont.truetype(os.path.join('UNSII-2.ttf'), 18)
-    font14 = ImageFont.truetype(os.path.join('UNSII-2.ttf'), 14)
+        font96 = ImageFont.truetype(os.path.join('UNSII-2.ttf'), 96)
+        font18 = ImageFont.truetype(os.path.join('UNSII-2.ttf'), 18)
+        font14 = ImageFont.truetype(os.path.join('UNSII-2.ttf'), 14)
 
-    # Drawing on the Horizontal image
-    # logging.info("1.Drawing on the Horizontal image...")
-    Himage = Image.new('1', (width, height), 255)  # 255: clear the frame
+        # Drawing on the Horizontal image
+        # logging.info("1.Drawing on the Horizontal image...")
+        Himage = Image.new('1', (width, height), 255)  # 255: clear the frame
 
-    draw = ImageDraw.Draw(Himage)
+        draw = ImageDraw.Draw(Himage)
 
-    # 背景 
-    draw.rectangle((0, 0, 300, 480), 0)
-    translate(20, 20)
+        # 背景 
+        draw.rectangle((0, 0, 300, 480), 0)
+        translate(20, 20)
 
-    # 日期
-    draw_text(draw, '2023/9/26', 0, 6, font=font14, width=260, height=40, align='left', color=255)
-    # 分割线
-    draw_dash_line(draw, 0,40, 260, 255)
-
-    # 时间
-    draw_text(draw, '22:26', 0, 41, font=font96, width=260, height=200, align='center', color=255)
-
-    # 进度
-    draw_text(draw, '27/30', 0, 221 - 30, font=font14, width=260, height=30, align='left', color=255)
-    # 星期
-    draw_text(draw, 'Tuesday', 0, 221 - 30, font=font14, width=260, height=30, align='right', color=255)
-    # 分割线
-    draw_dash_line(draw, 0,221, 260, 255)
-    # 进度条
-    draw_progress(draw, 0, 230, 27, 30, 12)
-   
-    draw_text(draw,'温度：37°', 0, 250, font=font_c_14, width=260, height=20, align='left')
-   
-    draw_text(draw,'湿度：59%', 0, 270, font=font_c_14, width=260, height=20, align='left')
-   
-    text = u"""\甲午(马)年八月十八\n祭祀 出行 扫舍 馀事勿取\n诸事不宜"""
-    
-    # draw.multiline_text((0, 250), text, fill=1, font=font_c_14, spacing=6)
-    draw_text(draw,'甲午(马)年八月十八', 0, 290, font=font_c_14, width=260, height=20, align='left')
-    # draw_text(draw,'祭祀 出行 扫舍 馀事勿取', 0, 310, font=font_c_14, width=260, height=20, align='left')
-    # draw_text(draw,'诸事不宜', 0, 330, font=font_c_14, width=260, height=20, align='left')
-    
-    translate(20, 360)
-    # draw_rect(draw, 0, 360, 40, 40, color=0, radius=3)
-    # 定义曲线的控制点
-    
+        date_info = request_time()
+        
+        
+        
 
 
-    path = [35, 28, 32, 36, 30]
+        today_date = str(date_info.year) + '-' + str(date_info.month) + '-' + str(date_info.day)
+        # 日期
+        draw_text(draw, today_date, 0, 6, font=font14, width=260, height=40, align='left', color=255)
+        # 分割线
+        draw_dash_line(draw, 0,40, 260, 255)
 
 
-    start_y = 420
-    max_value = max(path)
-    min_value = min(path)
-    dt = int(max_value - min_value)
-    
-    max_height = 40
-    
-    step = int(260 / 4)
+        current_time = str( date_info.hour) + ':' + str(date_info.minute)
+        # 时间
+        draw_text(draw, current_time, 0, 41, font=font96, width=260, height=200, align='center', color=255)
 
-    for (index, item) in enumerate(range(1, len(path))):
-        sy = path[item -1]
-        ey = path[item]
-        print(sy, ey)
-        for k in range(0, step):
-            draw.point((20 + int(index * step + k), int(start_y + (max_value - (sy + smoothstep(k/step) * (ey - sy))) * (max_height / dt))), fill=1)
-
-    # 绘制曲线
-    # draw.line(points, fill='blue', width=2, joint='curve')
+        month_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        
+        per = str(date_info.day) + '/' + str(month_days[date_info.month])
+        
+        # 进度
+        draw_text(draw, per, 0, 221 - 30, font=font14, width=260, height=30, align='left', color=255)
+        
+        weeks = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        # 星期
+        draw_text(draw, weeks[date_info.weekday()], 0, 221 - 30, font=font14, width=260, height=30, align='right', color=255)
+        # 分割线
+        draw_dash_line(draw, 0,221, 260, 255)
+        # 进度条
+        draw_progress(draw, 0, 230, date_info.day, month_days[date_info.month], 12)
     
+        draw_text(draw,'温度：37°', 0, 250, font=font_c_14, width=260, height=20, align='left')
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    # 右侧内容
-    translate(305, 0)
-    draw_rect(draw, 0, 0, width-305, height=50, color=0)
-    # 绘制标题
-    draw_text(draw, 'A puma at large', 0, 0, font18, 480, 50, 'center', color=0)
-    translate(320, 50)
-    
-    content = u'''We were using this to help teams optimise their players and know how to manage them for their games. We called this solution Performetric. It is a non-invasive programme that runs on PCs to analyse mental fatigue and stress based on how players click their mice and keyboards.
-So, in our early days, that was in 2018, we were serving eSports teams to help them monitor their players' stress and anxiety levels so they could know what to do. While doing that, we were also looking for other ways to expand our reach.
-Eventually, as we analysed player behaviours and their use of their hardware, we started the solution that is now known as Anybrain’s AI Anti-Cheat. We spent the earlier years testing the products and then pitching prospects to show them how our solution works and why we are better than other existing ones in the market. We were trying to gain recognition for what we were doing. Seeking that recognition took a while, but it has brought us here eight years later.
-Anh-Vu: So, yes, we have existed as a team for a long time. But I joined them more recently. André and Serafim began working on the technology for our line of products many years ago.'''
-    
-    draw_text_multi(draw, content, 0, 0, 460, max_height = 410, font=font14)
-    
-    # 绘制内容
-    
-    Himage.show()
+        draw_text(draw,'湿度：59%', 0, 270, font=font_c_14, width=260, height=20, align='left')
+        
+        
+        
+        
+        weather = request_calender(today_date)
+        if not weather == None:
+        
+            data = weather["result"]['data']
+            # draw.multiline_text((0, 250), text, fill=1, font=font_c_14, spacing=6)
+            draw_text(draw, data['lunarYear'] + '(' + data['animalsYear'] + ')' + data['lunar'], 0, 290, font=font_c_14, width=260, height=20, align='left')
+            # draw_text(draw,'祭祀 出行 扫舍 馀事勿取', 0, 310, font=font_c_14, width=260, height=20, align='left')
+            # draw_text(draw,'诸事不宜', 0, 330, font=font_c_14, width=260, height=20, align='left')
+        
+        translate(20, 360)
+        # draw_rect(draw, 0, 360, 40, 40, color=0, radius=3)
+        # 定义曲线的控制点
+        
 
 
-    # draw.text((10, 20), '7.5inch e-Paper', font=font14, fill = 0)
-    # draw.text((150, 0), u'微雪电子', font=font14, fill = 0)
-    # draw.line((20, 50, 70, 100), fill = 0)
-    # draw.line((70, 50, 20, 100), fill = 0)
-    # draw.rectangle((20, 50, 70, 100), outline = 0)
-    # draw.line((165, 50, 165, 100), fill = 0)
-    # draw.line((140, 75, 190, 75), fill = 0)
-    # draw.arc((140, 50, 190, 100), 0, 360, fill = 0)
-    # draw.rectangle((80, 50, 130, 100), fill = 0)
-    # draw.chord((200, 50, 250, 100), 0, 360, fill = 0)
-    Himage.save('image2.jpg')
-    # epd.display(epd.getbuffer(Himage))
-    # time.sleep(2)
+        weather = request_weather()
+        if not weather == None:
+            data = weather['result']
+            
+            temperatures = map(lambda x: x["temperature"], data['future'].values())
+            path = []
+            for temperature in temperatures:
+                item = str(temperature).split('~')[1].replace('℃', '')
+                path.append(int(item))
 
-    # Drawing on the Vertical image
-    # logging.info("2.Drawing on the Vertical image...")
-    # Limage = Image.new('1', (epd.height, epd.width), 255)  # 255: clear the frame
-    # draw = ImageDraw.Draw(Limage)
-    # draw.text((2, 0), 'hello world', fill = 0)
-    # draw.text((2, 20), '7.5inch epd', fill = 0)
-    # draw.text((20, 50), u'微雪电子', fill = 0)
-    # draw.line((10, 90, 60, 140), fill = 0)
-    # draw.line((60, 90, 10, 140), fill = 0)
-    # draw.rectangle((10, 90, 60, 140), outline = 0)
-    # draw.line((95, 90, 95, 140), fill = 0)
-    # draw.line((70, 115, 120, 115), fill = 0)
-    # draw.arc((70, 90, 120, 140), 0, 360, fill = 0)
-    # draw.rectangle((10, 150, 60, 200), fill = 0)
-    # draw.chord((70, 150, 120, 200), 0, 360, fill = 0)
-    # epd.display(epd.getbuffer(Limage))
-    # time.sleep(2)
+            start_y = 420
+            max_value = max(path)
+            min_value = min(path)
+            dt = int(max_value - min_value)
+            
+            max_height = 40
+            
+            step = int(260 / (len(path) - 1))
 
-    # logging.info("3.read bmp file")
-    # Himage = Image.open(os.path.join(picdir, '7in5_V2.bmp'))
-    # epd.display(epd.getbuffer(Himage))
-    # time.sleep(2)
+            for (index, item) in enumerate(range(1, len(path))):
+                sy = path[item -1]
+                ey = path[item]
+                for k in range(0, step):
+                    draw.point((20 + int(index * step + k), int(start_y + (max_value - (sy + smoothstep(k/step) * (ey - sy))) * (max_height / dt))), fill=1)
 
-    # logging.info("4.read bmp file on window")
-    # Himage2 = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
-    # bmp = Image.open(os.path.join(picdir, '100x100.bmp'))
-    # Himage2.paste(bmp, (50,10))
-    # epd.display(epd.getbuffer(Himage2))
-    # time.sleep(2)
+        # 绘制曲线
+        # draw.line(points, fill='blue', width=2, joint='curve')
+        
+        
+        # 右侧内容
+        translate(305, 0)
+        draw_rect(draw, 0, 0, width-305, height=50, color=0)
+        # 绘制标题
+        draw_text(draw, 'A puma at large', 0, 0, font18, 480, 50, 'center', color=0)
+        translate(320, 50)
+        
+        content = u'''We were using this to help teams optimise their players and know how to manage them for their games. We called this solution Performetric. It is a non-invasive programme that runs on PCs to analyse mental fatigue and stress based on how players click their mice and keyboards.
+    So, in our early days, that was in 2018, we were serving eSports teams to help them monitor their players' stress and anxiety levels so they could know what to do. While doing that, we were also looking for other ways to expand our reach.
+    Eventually, as we analysed player behaviours and their use of their hardware, we started the solution that is now known as Anybrain’s AI Anti-Cheat. We spent the earlier years testing the products and then pitching prospects to show them how our solution works and why we are better than other existing ones in the market. We were trying to gain recognition for what we were doing. Seeking that recognition took a while, but it has brought us here eight years later.
+    Anh-Vu: So, yes, we have existed as a team for a long time. But I joined them more recently. André and Serafim began working on the technology for our line of products many years ago.'''
+        
+        draw_text_multi(draw, content, 0, 0, 460, max_height = 410, font=font14)
+        
+        # 绘制内容
+        
+        # Himage.show()
 
-    # logging.info("Clear...")
-    # epd.init()
-    # epd.Clear()
 
-    # logging.info("Goto Sleep...")
-    # epd.sleep()
-    
-except IOError as e:
-    # logging.info(e)
-    print(e)
-    
-except KeyboardInterrupt:    
-    # logging.info("ctrl + c:")
-    # epd7in5_V2.epdconfig.module_exit()
-    exit()
+        # draw.text((10, 20), '7.5inch e-Paper', font=font14, fill = 0)
+        # draw.text((150, 0), u'微雪电子', font=font14, fill = 0)
+        # draw.line((20, 50, 70, 100), fill = 0)
+        # draw.line((70, 50, 20, 100), fill = 0)
+        # draw.rectangle((20, 50, 70, 100), outline = 0)
+        # draw.line((165, 50, 165, 100), fill = 0)
+        # draw.line((140, 75, 190, 75), fill = 0)
+        # draw.arc((140, 50, 190, 100), 0, 360, fill = 0)
+        # draw.rectangle((80, 50, 130, 100), fill = 0)
+        # draw.chord((200, 50, 250, 100), 0, 360, fill = 0)
+        # Himage.save('image2.jpg')
+        # epd.display(epd.getbuffer(Himage))
+        # time.sleep(2)
+
+        # Drawing on the Vertical image
+        # logging.info("2.Drawing on the Vertical image...")
+        # Limage = Image.new('1', (epd.height, epd.width), 255)  # 255: clear the frame
+        # draw = ImageDraw.Draw(Limage)
+        # draw.text((2, 0), 'hello world', fill = 0)
+        # draw.text((2, 20), '7.5inch epd', fill = 0)
+        # draw.text((20, 50), u'微雪电子', fill = 0)
+        # draw.line((10, 90, 60, 140), fill = 0)
+        # draw.line((60, 90, 10, 140), fill = 0)
+        # draw.rectangle((10, 90, 60, 140), outline = 0)
+        # draw.line((95, 90, 95, 140), fill = 0)
+        # draw.line((70, 115, 120, 115), fill = 0)
+        # draw.arc((70, 90, 120, 140), 0, 360, fill = 0)
+        # draw.rectangle((10, 150, 60, 200), fill = 0)
+        # draw.chord((70, 150, 120, 200), 0, 360, fill = 0)
+        # epd.display(epd.getbuffer(Limage))
+        # time.sleep(2)
+
+        # logging.info("3.read bmp file")
+        # Himage = Image.open(os.path.join(picdir, '7in5_V2.bmp'))
+        # epd.display(epd.getbuffer(Himage))
+        # time.sleep(2)
+
+        # logging.info("4.read bmp file on window")
+        # Himage2 = Image.new('1', (epd.width, epd.height), 255)  # 255: clear the frame
+        # bmp = Image.open(os.path.join(picdir, '100x100.bmp'))
+        # Himage2.paste(bmp, (50,10))
+        # epd.display(epd.getbuffer(Himage2))
+        # time.sleep(2)
+
+        # logging.info("Clear...")
+        # epd.init()
+        # epd.Clear()
+
+        # logging.info("Goto Sleep...")
+        # epd.sleep()
+        time.sleep(60)
+        
+        print('over')
+        
+    except IOError as e:
+        # logging.info(e)
+        print(e)
+        
+    except Exception as e:    
+        print(e)
+        # logging.info("ctrl + c:")
+        # epd7in5_V2.epdconfig.module_exit()
+        exit()

@@ -6,10 +6,10 @@ def request_english_day():
     
 
 # 日历
-def request_calender():
+def request_calender(data: str):
     
     params = {
-        'date': '2023-9-28',
+        'date': data,
         'key': 'ebde19bd911cfdc29ba69075a955aed6'
     }
     
@@ -17,26 +17,26 @@ def request_calender():
     response = requests.get('http://v.juhe.cn/calendar/day',params=params)
     if response.status_code == 200:
         data = response.json()
-        print(data)
         return data
     else:
         print('请求失败:', response.status_code)
+        return None
 
 
 
 # 天气
 def request_weather():
     params = {
-        'cityname': 'CHXX0008',
+        'cityname': '武汉',
         'key': '6b1333527278ef25ef6b36e3755efe84'
     }
     response = requests.get('http://v.juhe.cn/weather/index', params=params)
     if response.status_code == 200:
         data = response.json()
-        print(data)
         return data
     else:
         print('请求失败:', response.status_code)
+        return None
         
 def request_time() -> datetime:
     response = requests.get('https://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp')
@@ -46,7 +46,5 @@ def request_time() -> datetime:
         return datetime.datetime.fromtimestamp(int(time))
     else:
         print('请求失败:', response.status_code)
+        return datetime.datetime.now()
 
-request_weather()
-request_calender()
-print(request_time())
