@@ -15,9 +15,12 @@ import time
 from PIL import Image,ImageDraw,ImageFont
 import traceback
 import re
+import requests
 from shapely.geometry import LineString
+from O365 import Account
+from io import BytesIO
 
-from request import request_time, request_calender, request_weather
+from request import request_time, request_calender, request_weather, request_weather2
 width = 800
 height = 480
 
@@ -219,10 +222,11 @@ while True:
         font96 = ImageFont.truetype(os.path.join('UNSII-2.ttf'), 96)
         font18 = ImageFont.truetype(os.path.join('UNSII-2.ttf'), 18)
         font14 = ImageFont.truetype(os.path.join('UNSII-2.ttf'), 14)
+        font12 = ImageFont.truetype(os.path.join('UNSII-2.ttf'), 12)
 
         # Drawing on the Horizontal image
         # logging.info("1.Drawing on the Horizontal image...")
-        Himage = Image.new('1', (width, height), 255)  # 255: clear the frame
+        Himage = Image.new('1', (width, height), 1)  # 255: clear the frame
 
         draw = ImageDraw.Draw(Himage)
 
@@ -233,7 +237,8 @@ while True:
         date_info = request_time()
         
         
-        
+        print('--->')
+
 
 
         today_date = str(date_info.year) + '-' + str(date_info.month) + '-' + str(date_info.day)
@@ -267,10 +272,11 @@ while True:
         draw_text(draw,'湿度：59%', 0, 270, font=font_c_14, width=260, height=20, align='left')
         
         
-        
+        print('--22->')
         
         weather = request_calender(today_date)
-        if not weather == None:
+        print(weather)
+        if not weather == None and  not weather["result"] == None:
         
             data = weather["result"]['data']
             # draw.multiline_text((0, 250), text, fill=1, font=font_c_14, spacing=6)
@@ -282,9 +288,23 @@ while True:
         # draw_rect(draw, 0, 360, 40, 40, color=0, radius=3)
         # 定义曲线的控制点
         
+        days_6 = request_weather2()
+        
+        for index,item in enumerate(days_6):
+            (high, low, url) = item
+            print(url, high, low)
+            image_response = requests.get(url)
+            if image_response.status_code == 200:
+                image = Image.open(BytesIO(image_response.content))
+                image = image.convert("RGBA")
+                image = image.convert("L")
+                image = image.point(lambda pixel: 0 if pixel < 128 else 255, "1")
+                image = image.resize((35, 35))
+                Himage.paste(image, (index * 35 + index * 10 + 20, global_y + 0))
+                draw_text(draw,  str(high) + '|' + str(low), index * 35 + index * 10, 45, font12, 35, 35, 'center', color=1)
 
 
-        weather = request_weather()
+        weather = None
         if not weather == None:
             data = weather['result']
             
@@ -325,11 +345,11 @@ while True:
     Eventually, as we analysed player behaviours and their use of their hardware, we started the solution that is now known as Anybrain’s AI Anti-Cheat. We spent the earlier years testing the products and then pitching prospects to show them how our solution works and why we are better than other existing ones in the market. We were trying to gain recognition for what we were doing. Seeking that recognition took a while, but it has brought us here eight years later.
     Anh-Vu: So, yes, we have existed as a team for a long time. But I joined them more recently. André and Serafim began working on the technology for our line of products many years ago.'''
         
-        draw_text_multi(draw, content, 0, 0, 460, max_height = 410, font=font14)
+        # draw_text_multi(draw, content, 0, 0, 460, max_height = 410, font=font14)
         
         # 绘制内容
         
-        # Himage.show()
+        Himage.show()
 
 
         # draw.text((10, 20), '7.5inch e-Paper', font=font14, fill = 0)
@@ -382,9 +402,9 @@ while True:
 
         # logging.info("Goto Sleep...")
         # epd.sleep()
-        time.sleep(60)
+        time.sleep(6000)
         
-        print('over')
+        # print('over')
         
     except IOError as e:
         # logging.info(e)
