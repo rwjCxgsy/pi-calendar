@@ -215,6 +215,10 @@ while True:
         logging.info("init and Clear")
         # epd.init()
         # epd.Clear()
+        
+        Himage = Image.new('1', (width, height), 1)  # 255: clear the frame
+        
+        start_time = time.time()
 
         font_c_14 = ImageFont.truetype(os.path.join('./AaGuDianKeBenSong-2.ttf'), 14)
         font_c_16 = ImageFont.truetype(os.path.join('./AaGuDianKeBenSong-2.ttf'), 14)
@@ -226,7 +230,7 @@ while True:
 
         # Drawing on the Horizontal image
         # logging.info("1.Drawing on the Horizontal image...")
-        Himage = Image.new('1', (width, height), 1)  # 255: clear the frame
+
 
         draw = ImageDraw.Draw(Himage)
 
@@ -348,8 +352,8 @@ while True:
         # draw_text_multi(draw, content, 0, 0, 460, max_height = 410, font=font14)
         
         # 绘制内容
-        
-        Himage.show()
+        print(time.time() - time())
+        # Himage.show()
 
 
         # draw.text((10, 20), '7.5inch e-Paper', font=font14, fill = 0)

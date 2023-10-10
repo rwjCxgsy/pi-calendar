@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <!-- <link href="https://cdn.bootcdn.net/ajax/libs/hack-font/3.3.0/web/hack.css" rel="stylesheet"> -->
+    <style>
+
+        * {
+            padding: 0;
+            border: 0;
+            margin: 0;
+            overflow: hidden;
+            font-size: 16px;
+            box-sizing: border-box;
+            /* font-family: Hack; */
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        html,body {
+            width: 800px;
+            height: 480px;
+            overflow: hidden;
+        }
+
+        .month {
+            /* height: 30px;
+            line-height: 30px; */
+            padding-bottom: 6px;
+        }
+        .after-line {
+            border-bottom: 1px dashed white;
+        }
+
+        .day span.left {
+            float: left;
+            line-height: 30px;
+        }
+
+        .day span.right {
+            float: right;
+            line-height: 30px;
+        }
+
+        .time  {
+            height: 180px;
+            text-align: center;
+            line-height: 180px;
+            font-size: 96px;
+            font-weight: bolder;
+        }
+
+        .progress {
+            margin-top: 6px;
+        }
+
+        .progress ul li {
+            list-style: none;
+            width: 4px;
+            height: 16px;
+            border: 1px dashed white;
+            float: left;
+            margin-right: 4px;
+        }
+        .progress ul li.end {
+            border: none;
+            background-color: white;
+        }
+
+        .nong span {
+            font-size: 14px;
+            display: block;
+        }
+
+        .weather ul li {
+
+            width: 35px;
+            margin-right: 10px;
+            float: left;
+        }
+
+        .weather ul li img {
+            width: 35px;
+            height: 35px;
+        }
+
+        .weather ul li span {
+            font-size: 12px;
+        }
+
+        .weather ul li:nth-last-of-type(1) {
+            margin-right: 0;
+        }
+
+        .title {
+            height: 48px;
+            line-height: 48px;
+            text-align: center;
+            background-color: #999;
+        }
+
+        .content {
+            width: 500px;
+            height: 432px;
+            padding: 20px;
+        }
+        
+    </style>
+</head>
+<body>
+    <div style="width:100%; height: 100%">
+        <div style="width: 300px; height: 100%; padding: 20px; float: left; background-color: black; color: white;">
+            <div class="month after-line">{{year_month}}</div>
+            <div class="time">
+                {{current_time}}
+            </div>
+            <div class="day after-line">
+                <span class="left">{{day}}/{{total_day}}</span>
+                <span class="right">{{week}}</span>
+            </div>
+            <div class="progress">
+                <ul>
+
+                    {{for item in progress}}
+                        <li {{if item == 1}} class="end" {{endif}}></li>
+                    {{endfor}}
+
+                </ul>
+            </div>
+            <div class="nong">
+                <span>{{china_year}}</span>
+                <span>{{luck}}</span>
+            </div>
+
+            <div class="weather">
+                <ul>
+                    {{for item in days_6}}
+                    <li>
+                        <img src="{{item[2]}}" />
+                        <span>{{item[0]}}/{{item[1]}}</span>
+                    </li>
+                    {{endfor}}
+                </ul>
+            </div>
+        </div>
+        <div style="width: 500px; height: 100%;" class="right">
+            <div class="title">距离过年还有100天</div>
+            <div class="content">
+                在这个示例中，我们首先使用 time.time() 函数获取当前时间作为代码的开始时间。然后在代码执行完毕后，再次使用 time.time() 函数获取当前时间作为代码的结束时间。最后，通过两个时间戳的差值计算出代码的运行时间，以秒为单位，并将其打印出来。
+
+请注意，time.time() 返回的时间戳是一个浮点数，表示从某个固定时间点（通常是计算机的启动时间）经过的秒数。因此，通过计算时间戳的差值可以得到代码的运行时间。
+
+这只是一个简单的示例，你可以根据需要在代码的不同位置插入时间戳，并自定义输出的格式。另外，如果你需要更精确的计时，可以考虑使用 timeit 模块来进行更精确的性能测试。
+            </div>
+        </div>
+    </div>
+</body>
+</html>
